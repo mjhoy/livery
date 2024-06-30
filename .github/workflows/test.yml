@@ -1,0 +1,25 @@
+name: test
+
+on: pull_request
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.6.3
+    - uses: actions/cache@v2
+      with:
+        path: vendor/bundle
+        key: ${{ runner.os }}---gems-${{ hashFiles('**/Gemfile.lock') }}
+        restore-keys: |
+          ${{ runner.os }}---gems
+    - name: bundle install via appraisal
+      run: |
+        bundle config path vendor/bundle
+        bundle install
+        bundle exec appraisal install
+    - name: run tests
+      run: bundle exec appraisal rspec
